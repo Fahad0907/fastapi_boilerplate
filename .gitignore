@@ -1,0 +1,142 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+pythonenv*
+
+# Virtual Environment
+.venv/
+venv/
+env/
+virtualenv/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+.editorconfig
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+*.ipynb
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+*.env
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Logs
+logs/
+*.log
+logfile-*
+
+# Testing
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pytest_cache/
+test-reports/
+*.cover
+.hypothesis/
+
+# Build artifacts
+dist/
+build/
+*.egg-info/
+*.egg
+MANIFEST
+
+# Docker
+*.pid
+docker-compose.override.yml
+
+# Alembic (if using migrations)
+alembic/versions/*.pyc
+alembic/versions/__pycache__/
+
+# Static files
+static/
+media/
+uploads/
+
+# Redis dump
+dump.rdb
+
+# Celery
+celerybeat-schedule
+celerybeat.pid
+
+# Gunicorn
+gunicorn.conf.py
+gunicorn.log
+
+# Uvicorn
+uvicorn.log
+
+# Security
+*.key
+*.pem
+*.crt
+*.p12
+secrets/
+certificates/
+
+# Package management
+poetry.lock
+Pipfile.lock
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Type checking
+.mypy_cache/
+.ruff_cache/
+
+# Profiling
+*.prof
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+*.bak
+
+# Project specific
+*.pid
+*.sock
+.dockerignore
+
+# Coverage reports
+.coverage
+coverage.xml
+*.cover
+.hypothesis/
+
+# Debug
+debug.log
+debug/
+test.db
