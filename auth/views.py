@@ -1,44 +1,45 @@
-from fastapi import Depends, HTTPException
+from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 from database import get_db
 from auth.models.auth_model import AuthModel
 from auth.schemas.auth_schema import AuthCreate, AuthResponse
-from auth.utils import hash_password, verify_password, create_access_token, get_current_user
+from auth.services.auth_service import AuthService
+from auth.repositories.auth_repositories import AuthRepository
 
 
-def register(auth: AuthCreate, db: Session = Depends(get_db)):
+async def get_auth_service(db: AsyncSession = Depends(get_db)) -> AuthService:
+    """Dependency to inject AuthService."""
+    repository = AuthRepository(db)
+    return AuthService(repository)
+
+
+async def register(
+    auth_data: AuthCreate,
+    service: AuthService = Depends(get_auth_service)
+) -> AuthResponse:
     """Register a new user."""
-    # Check if user already exists
-    existing_user = db.query(AuthModel).filter(AuthModel.username == auth.username).first()
-    if existing_user:
-        raise HTTPException(status_code=400, detail="Username already registered")
-    
-    # Hash password and create user
-    hashed_password = hash_password(auth.password)
-    db_auth = AuthModel(username=auth.username, password=hashed_password)
-    db.add(db_auth)
-    db.commit()
-    db.refresh(db_auth)
-    return db_auth
+    user = await service.register_user(auth_data)
+    return AuthResponse.model_validate(user)
 
 
-def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+async def login(
+    form_data: OAuth2PasswordRequestForm = Depends(),
+    service: AuthService = Depends(get_auth_service)
+) -> dict:
     """Login user and return access token."""
-    # Find user
-    user = db.query(AuthModel).filter(AuthModel.username == form_data.username).first()
-    if not user:
-        raise HTTPException(status_code=401, detail="Invalid credentials")
-    
-    # Verify password
-    if not verify_password(form_data.password, user.password):
-        raise HTTPException(status_code=401, detail="Invalid credentials")
-    
-    # Create access token
-    access_token = create_access_token(data={"user_id": user.id})
-    return {"access_token": access_token, "token_type": "bearer"}
+    user = await service.authenticate_user(form_data.username, form_data.password)
+    access_token = service.generate_auth_token(user.id)
+    return {
+        "access_token": access_token,
+        "token_type": "bearer"
+    }
 
 
-def get_current_user_info(current_user: AuthModel = Depends(get_current_user)):
-    """Get current authenticated user info."""
-    return current_user
+async def get_user_profile(
+    user_id: int,
+    service: AuthService = Depends(get_auth_service)
+) -> AuthResponse:
+    """Get user profile by user ID."""
+    user = await service.get_user_profile(user_id)
+    return AuthResponse.model_validate(user)

@@ -1,18 +1,25 @@
 from fastapi import FastAPI
+from contextlib import asynccontextmanager
 from database import engine, Base
 from auth.urls import router as auth_router
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+    yield
+    # Shutdown
+    await engine.dispose()
 
 
 app = FastAPI(
     title="FastAPI Practice",
     description="Structured FastAPI application",
-    version="1.0.0"
+    version="1.0.0",
+    lifespan=lifespan
 )
-
-
-@app.on_event("startup")
-def startup():
-    Base.metadata.create_all(bind=engine)
 
 
 # Register routers
@@ -20,5 +27,5 @@ app.include_router(auth_router)
 
 
 @app.get("/")
-def read_root():
+async def read_root():
     return {"message": "Welcome to FastAPI"}
