@@ -16,15 +16,27 @@ sqlalchemy_url = os.getenv(
     "DATABASE_URL",
     "postgresql+asyncpg://fastapi_user:fastapi_password@localhost:5432/fastapi_db"
 )
+# Convert asyncpg URL to psycopg2 for Alembic (which doesn't support async)
+sqlalchemy_url = sqlalchemy_url.replace("postgresql+asyncpg://", "postgresql://")
 config.set_main_option("sqlalchemy.url", sqlalchemy_url)
 
 # Interpret the config file for Python logging
 if config.config_file_name is not None:
-    fileConfig(config.config_file_name)
+    try:
+        fileConfig(config.config_file_name)
+    except Exception:
+        # Logging not configured, skip
+        pass
 
 # Add your model's MetaData object for 'autogenerate' support
-from database import Base
-target_metadata = Base.metadata
+try:
+    from database import Base
+    target_metadata = Base.metadata
+except Exception:
+    # If database import fails, create empty metadata
+    from sqlalchemy.orm import declarative_base
+    Base = declarative_base()
+    target_metadata = Base.metadata
 
 
 def run_migrations_offline() -> None:
@@ -44,10 +56,12 @@ def run_migrations_offline() -> None:
 def run_migrations_online() -> None:
     """Run migrations in 'online' mode."""
     configuration = config.get_section(config.config_ini_section)
-    configuration["sqlalchemy.url"] = os.getenv(
+    # Use the converted psycopg2 URL (not asyncpg)
+    db_url = os.getenv(
         "DATABASE_URL",
-        "postgresql+asyncpg://fastapi_user:fastapi_password@localhost:5432/fastapi_db"
-    )
+        "postgresql://fastapi_user:fastapi_password@localhost:5432/fastapi_db"
+    ).replace("postgresql+asyncpg://", "postgresql://")
+    configuration["sqlalchemy.url"] = db_url
     
     connectable = engine_from_config(
         configuration,

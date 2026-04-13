@@ -1,12 +1,13 @@
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
-from database import engine, Base
+from database import get_engine, Base
 from auth.urls import router as auth_router
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup
+    engine = get_engine()
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     yield

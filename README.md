@@ -11,10 +11,10 @@ Production-ready FastAPI application with Docker, PostgreSQL, and Alembic migrat
 cp .env.example .env
 
 # 2. Build and start containers
-docker-compose up -d --build
+docker compose up -d --build
 
 # 3. Create initial migration (after PostgreSQL starts)
-docker-compose exec fastapi alembic revision --autogenerate -m "Initial migration"
+docker compose exec fastapi alembic revision --autogenerate -m "Initial migration"
 
 # 4. Access the application
 # - App: http://localhost:8000
@@ -118,12 +118,12 @@ docker-compose exec fastapi alembic revision --autogenerate -m "Add users table"
 ```bash
 # Runs automatically on container startup
 # Or manually:
-docker-compose exec fastapi alembic upgrade head
+docker compose exec fastapi alembic upgrade head
 ```
 
 ### View History
 ```bash
-docker-compose exec fastapi alembic history
+docker compose exec fastapi alembic history
 ```
 
 ### Downgrade
@@ -169,12 +169,12 @@ See [DOCKER_SETUP.md](DOCKER_SETUP.md#database-migrations-with-alembic) for deta
 
 1. Start containers:
    ```bash
-   docker-compose up -d --build
+   docker compose up -d --build
    ```
 
 2. Access shell:
    ```bash
-   docker-compose exec fastapi bash
+   docker compose exec fastapi bash
    ```
 
 ## Common Tasks
